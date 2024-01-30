@@ -74,7 +74,10 @@ export function URLForm() {
   if (!submitted) {
     return (
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8 w-[300px]"
+        >
           <FormField
             control={form.control}
             name="url"
@@ -85,6 +88,7 @@ export function URLForm() {
                   <Input placeholder="https://google.com" {...field} />
                 </FormControl>
                 <FormMessage />
+                <FormDescription>Shortened URL will expire in 24 hours</FormDescription>
               </FormItem>
             )}
           />
@@ -96,15 +100,36 @@ export function URLForm() {
     );
   } else {
     return (
-      <div className="w-[300px] space-y-2">
-        <p className="text-center text-lg font-semibold">Here is your shortened url</p>
-
-        <div className="flex w-full max-w-lg items-center space-x-4">
-          <Input type="url" value={url} />
-          <Button onClick={() => copy(url)}>Copy</Button>
+      <div className="w-[300px] space-y-8">
+        <p className="text-center text-lg font-semibold">
+          Here is your shortened url
+        </p>
+        <div className="space-y-1">
+          <div className="flex w-full max-w-lg items-center space-x-4">
+            <Input type="url" value={url} />
+            <Button
+              onClick={() => {
+                toast("Link Copied", {
+                  description: "Link has been copied to your clipboard.",
+                });
+                copy(url);
+              }}
+            >
+              Copy
+            </Button>
+          </div>
+          <p className="text-center text-sm text-muted-foreground">This link will expire in 24 hours</p>
         </div>
         <div>
-        <Button onClick={() => {setSubmitted(false); form.reset()}} className="w-full">Back</Button>
+          <Button
+            onClick={() => {
+              setSubmitted(false);
+              form.reset();
+            }}
+            className="w-full"
+          >
+            Back
+          </Button>
         </div>
       </div>
     );

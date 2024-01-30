@@ -5,3 +5,5 @@ main = "./src/index.ts" # init w/ TypeScript
 kv_namespaces = [
   { binding = "MY_KV", id = "1eab47c91e2f4a46b00ba74123681192" }
 ]
+[vars]
+WEBSITE_URL='http://localhost:8788'
