@@ -1,23 +1,25 @@
 // Next.js Edge API Route Handlers: https://nextjs.org/docs/app/building-your-application/routing/router-handlers#edge-and-nodejs-runtimes
 
-import type { NextRequest } from 'next/server'
+import type { NextRequest } from "next/server";
 
-export const runtime = 'edge'
+export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
-  let responseText = 'Hello World'
+  // this is the KV binding you defined in next.config.js
+  const myKv = process.env.MY_KV;
 
-  // In the edge runtime you can use Bindings that are available in your application
-  // (for more details see:
-  //    - https://developers.cloudflare.com/pages/framework-guides/deploy-a-nextjs-site/#use-bindings-in-your-nextjs-application
-  //    - https://developers.cloudflare.com/pages/functions/bindings/
-  // )
-  //
-  // KV Example:
-  // const myKv = process.env.MY_KV
-  // await myKv.put('suffix', ' from a KV store!')
-  // const suffix = await myKv.get('suffix')
-  // responseText += suffix
+  // get a value from the namespace
 
-  return new Response(responseText)
+  const kvValue = (await myKv.get(`kvTest`)) || false;
+
+  return new Response(`The value of kvTest in MY_KV is: ${kvValue}`);
+}
+
+export async function POST(req: NextRequest) {
+  const data: { message: string } = await req.json();
+  console.log(data);
+  const myKv = process.env.MY_KV;
+  await myKv.put("kvTest", data.message);
+
+  return Response.json(data);
 }
