@@ -18,7 +18,6 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useState } from "react";
 import copy from "copy-to-clipboard";
-import { redirect } from "next/navigation";
 
 const reservedSlugs = ["https://imjustin.dev"];
 
@@ -45,9 +44,6 @@ export function URLForm() {
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    // toast("Form has been submitted", {
-    //   description: `URL: ${values.url}`,
-    // });
     const response = await fetch("/api/shortURL", {
       method: "POST",
       headers: {
@@ -66,10 +62,6 @@ export function URLForm() {
         description: "Your link has been shortened",
       });
     }
-
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    // console.log(id);
   }
   if (!submitted) {
     return (
