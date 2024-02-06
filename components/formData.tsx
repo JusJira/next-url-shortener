@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useState } from "react";
 import copy from "copy-to-clipboard";
+import QRCode from "react-qr-code";
 
 const reservedSlugs = ["https://imjustin.dev"];
 
@@ -63,6 +64,28 @@ export function URLForm() {
       });
     }
   }
+
+  const onImageDownload = () => {
+    const svg = document.getElementById("QRCode");
+    if (svg) {
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx?.drawImage(img, 0, 0);
+        const pngFile = canvas.toDataURL("image/png");
+        const downloadLink = document.createElement("a");
+        downloadLink.download = "QRCode";
+        downloadLink.href = `${pngFile}`;
+        downloadLink.click();
+      };
+      img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
+    }
+  };
+
   if (!submitted) {
     return (
       <Form {...form}>
@@ -80,7 +103,9 @@ export function URLForm() {
                   <Input placeholder="https://google.com" {...field} />
                 </FormControl>
                 <FormMessage />
-                <FormDescription>Shortened URL will expire in 24 hours</FormDescription>
+                <FormDescription>
+                  Shortened URL will expire in 24 hours
+                </FormDescription>
               </FormItem>
             )}
           />
@@ -110,7 +135,19 @@ export function URLForm() {
               Copy
             </Button>
           </div>
-          <p className="text-center text-sm text-muted-foreground">This link will expire in 24 hours</p>
+          <p className="text-center text-sm text-muted-foreground">
+            This link will expire in 24 hours
+          </p>
+          <div className="flex flex-col items-center justify-center gap-4">
+            <QRCode
+              value={url}
+              id="QRCode"
+              className="m-auto border-8 rounded-sm"
+            />
+            <Button className="m-auto" onClick={onImageDownload}>
+              Download
+            </Button>
+          </div>
         </div>
         <div>
           <Button
