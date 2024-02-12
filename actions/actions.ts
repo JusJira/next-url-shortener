@@ -32,9 +32,7 @@ export async function CreateURL(
     const { url } = formSchema.parse(data);
     const myKv = process.env.MY_KV;
     const id = nanoid();
-    console.log("here1", id);
     await myKv.put(id, url, { expirationTtl: 86400 });
-    console.log("here2", id);
 
     return {
       status: "success",
