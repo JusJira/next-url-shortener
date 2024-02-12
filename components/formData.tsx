@@ -16,19 +16,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import copy from "copy-to-clipboard";
 import QRCode from "react-qr-code";
+import { useFormState } from "react-dom";
+import { CreateURL, State } from "@/actions/actions";
 
-const reservedSlugs = ["https://imjustin.dev"];
+export const runtime = "edge";
 
 const formSchema = z.object({
   url: z
     .string()
     .url()
-    .refine((url) => !reservedSlugs.includes(url), {
-      message: "Invalid URL",
-    }),
 });
 
 export function URLForm() {
@@ -42,28 +41,24 @@ export function URLForm() {
     },
   });
 
-  // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-    const response = await fetch("/api/shortURL", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        url: values.url,
-      }),
-    });
-
-    if (response?.ok) {
-      setIsLoading(false);
+  const [state, formAction] = useFormState<State, FormData>(CreateURL, null);
+  useEffect(() => {
+    if (!state) {
+      return;
+    }
+    if (state.status === "error") {
+      console.log('error',state.errors);
+    }
+    if (state.status === "success") {
       setSubmitted(true);
-      setUrl(await response.text());
-      return toast("Success", {
+      setUrl(state.message);
+      toast("Success", {
         description: "Your link has been shortened",
       });
     }
-  }
+  }, [state]);
+
+
 
   const onImageDownload = () => {
     const svg = document.getElementById("QRCode");
@@ -90,7 +85,7 @@ export function URLForm() {
     return (
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          action={formAction}
           className="space-y-8 w-[300px]"
         >
           <FormField
