@@ -1,4 +1,4 @@
-import { notFound, permanentRedirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export const runtime = "edge";
 
@@ -8,6 +8,6 @@ export default async function Page({ params }: { params: { slug: string } }) {
   if (data == null) {
     return notFound();
   } else {
-    return permanentRedirect(data);
+    return redirect(data);
   }
 }

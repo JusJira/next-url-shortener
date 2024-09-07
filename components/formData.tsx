@@ -25,9 +25,7 @@ import { CreateURL, State } from "@/actions/actions";
 export const runtime = "edge";
 
 const formSchema = z.object({
-  url: z
-    .string()
-    .url()
+  url: z.string().url(),
 });
 
 export function URLForm() {
@@ -47,7 +45,7 @@ export function URLForm() {
       return;
     }
     if (state.status === "error") {
-      console.log('error',state.errors);
+      console.log("error", state.errors);
     }
     if (state.status === "success") {
       setSubmitted(true);
@@ -57,8 +55,6 @@ export function URLForm() {
       });
     }
   }, [state]);
-
-
 
   const onImageDownload = () => {
     const svg = document.getElementById("QRCode");
@@ -84,10 +80,7 @@ export function URLForm() {
   if (!submitted) {
     return (
       <Form {...form}>
-        <form
-          action={formAction}
-          className="space-y-8 w-[300px]"
-        >
+        <form action={formAction} className="w-[300px] space-y-8">
           <FormField
             control={form.control}
             name="url"
@@ -130,14 +123,14 @@ export function URLForm() {
               Copy
             </Button>
           </div>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-center text-sm">
             This link will expire in 24 hours
           </p>
           <div className="flex flex-col items-center justify-center gap-4">
             <QRCode
               value={url}
               id="QRCode"
-              className="m-auto border-8 rounded-sm"
+              className="m-auto rounded-sm border-8"
             />
             <Button className="m-auto" onClick={onImageDownload}>
               Download
