@@ -9,7 +9,10 @@ declare global {
 
       WEBSITE_URL: string
 
-      /** Public Turnstile site key. Enables the widget in the browser. */
+      /** Server-side Turnstile site key. Preferred; passed to the client at runtime. */
+      TURNSTILE_SITE_KEY?: string
+
+      /** Public Turnstile site key. Must be present at build time to be inlined. */
       NEXT_PUBLIC_TURNSTILE_SITE_KEY?: string
 
       /** Turnstile secret key. When set, the server action requires a valid token. */

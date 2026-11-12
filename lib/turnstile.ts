@@ -23,6 +23,9 @@ export async function verifyTurnstile(
   }
 
   if (!token) {
+    console.error(
+      "Turnstile verification failed: no token was submitted. Check that the widget rendered (TURNSTILE_SITE_KEY / NEXT_PUBLIC_TURNSTILE_SITE_KEY is set for this environment)."
+    );
     return false;
   }
 
@@ -38,12 +41,24 @@ export async function verifyTurnstile(
     });
 
     if (!response.ok) {
+      console.error(
+        `Turnstile Siteverify request failed with HTTP ${response.status}`
+      );
       return false;
     }
 
     const result = (await response.json()) as SiteverifyResult;
-    return result.success === true;
-  } catch {
+    if (result.success !== true) {
+      console.error(
+        "Turnstile Siteverify rejected the token:",
+        result["error-codes"] ?? "unknown"
+      );
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Turnstile Siteverify request threw:", error);
     return false;
   }
 }

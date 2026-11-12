@@ -22,7 +22,7 @@ export default function RootLayout({
   const nonce = headers().get("x-nonce") ?? undefined;
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
