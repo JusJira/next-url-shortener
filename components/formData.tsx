@@ -131,6 +131,7 @@ export function URLForm({ turnstileSiteKey }: URLFormProps) {
               </FormItem>
             )}
           />
+          <SubmitButton disabled={!canSubmit} />
           {turnstileSiteKey ? (
             <TurnstileWidget
               ref={turnstileRef}
@@ -138,7 +139,6 @@ export function URLForm({ turnstileSiteKey }: URLFormProps) {
               onVerify={onTurnstileVerify}
             />
           ) : null}
-          <SubmitButton disabled={!canSubmit} />
         </form>
       </Form>
     );
