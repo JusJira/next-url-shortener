@@ -69,10 +69,11 @@ The app ships with these protections in code:
 ### Turnstile setup
 
 1. Create a Turnstile widget for `jjus.dev` in the Cloudflare dashboard.
-2. Add both variables to the Pages project (Production **and** Preview), then redeploy:
-   - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` – enables the widget.
-   - `TURNSTILE_SECRET_KEY` – enables server-side enforcement.
-3. When `TURNSTILE_SECRET_KEY` is set, a valid token is required. When it is absent (e.g. local development), verification is skipped and only the KV throttle applies.
+2. Add these variables to the Pages project (Production **and** Preview):
+   - `TURNSTILE_SITE_KEY` – the site key. It is read on the server and passed to the client as a prop, so it works as a runtime variable and cannot cause a server/client hydration mismatch.
+   - `TURNSTILE_SECRET_KEY` – enables server-side Siteverify enforcement.
+   - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is still supported as a fallback, but it is inlined at build time. Only use it if you are sure it is present during the build; otherwise the widget and the server can disagree (React hydration error #423).
+3. Redeploy after adding the variables. When `TURNSTILE_SECRET_KEY` is set, a valid token is required. When it is absent (e.g. local development), verification is skipped and only the KV throttle applies.
 
 ### Cloudflare zone settings (outside this repo)
 

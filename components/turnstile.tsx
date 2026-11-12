@@ -93,6 +93,11 @@ export const TurnstileWidget = forwardRef<
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         strategy="afterInteractive"
         onLoad={() => setScriptLoaded(true)}
+        onError={() => {
+          console.error(
+            "Failed to load the Turnstile script. Check the CSP and network tab."
+          );
+        }}
       />
       <div ref={containerRef} />
     </>

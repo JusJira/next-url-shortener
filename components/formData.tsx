@@ -29,8 +29,6 @@ import { MAX_URL_LENGTH, isHttpUrl } from "@/lib/url";
 
 export const runtime = "edge";
 
-const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
-
 const formSchema = z.object({
   url: z
     .string()
@@ -48,7 +46,11 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
   );
 }
 
-export function URLForm() {
+type URLFormProps = {
+  turnstileSiteKey?: string;
+};
+
+export function URLForm({ turnstileSiteKey }: URLFormProps) {
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [url, setUrl] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -107,7 +109,7 @@ export function URLForm() {
     }
   };
 
-  const canSubmit = !TURNSTILE_SITE_KEY || Boolean(turnstileToken);
+  const canSubmit = !turnstileSiteKey || Boolean(turnstileToken);
 
   if (!submitted) {
     return (
@@ -129,10 +131,10 @@ export function URLForm() {
               </FormItem>
             )}
           />
-          {TURNSTILE_SITE_KEY ? (
+          {turnstileSiteKey ? (
             <TurnstileWidget
               ref={turnstileRef}
-              siteKey={TURNSTILE_SITE_KEY}
+              siteKey={turnstileSiteKey}
               onVerify={onTurnstileVerify}
             />
           ) : null}
