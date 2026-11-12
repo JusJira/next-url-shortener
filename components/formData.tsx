@@ -16,22 +16,43 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
 import QRCode from "react-qr-code";
-import { useFormState } from "react-dom";
-import { CreateURL, State } from "@/actions/actions";
+import { useFormState, useFormStatus } from "react-dom";
+import { CreateURL, type State } from "@/actions/actions";
+import {
+  TurnstileWidget,
+  type TurnstileWidgetHandle,
+} from "@/components/turnstile";
+import { MAX_URL_LENGTH, isHttpUrl } from "@/lib/url";
 
 export const runtime = "edge";
 
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
 const formSchema = z.object({
-  url: z.string().url(),
+  url: z
+    .string()
+    .max(MAX_URL_LENGTH, `URL must be at most ${MAX_URL_LENGTH} characters`)
+    .refine(isHttpUrl, "Only http:// and https:// URLs are supported"),
 });
 
+function SubmitButton({ disabled }: { disabled: boolean }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button type="submit" disabled={disabled || pending} className="w-full">
+      {pending ? "Shortening..." : "Submit"}
+    </Button>
+  );
+}
+
 export function URLForm() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [url, setUrl] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileWidgetHandle>(null);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,12 +61,21 @@ export function URLForm() {
   });
 
   const [state, formAction] = useFormState<State, FormData>(CreateURL, null);
+
+  const onTurnstileVerify = useCallback((token: string | null) => {
+    setTurnstileToken(token);
+  }, []);
+
   useEffect(() => {
     if (!state) {
       return;
     }
     if (state.status === "error") {
-      console.log("error", state.errors);
+      toast.error("Could not shorten link", {
+        description: state.errors?.[0]?.message ?? state.message,
+      });
+      setTurnstileToken(null);
+      turnstileRef.current?.reset();
     }
     if (state.status === "success") {
       setSubmitted(true);
@@ -77,6 +107,8 @@ export function URLForm() {
     }
   };
 
+  const canSubmit = !TURNSTILE_SITE_KEY || Boolean(turnstileToken);
+
   if (!submitted) {
     return (
       <Form {...form}>
@@ -97,9 +129,14 @@ export function URLForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={isLoading} className="w-full">
-            Submit
-          </Button>
+          {TURNSTILE_SITE_KEY ? (
+            <TurnstileWidget
+              ref={turnstileRef}
+              siteKey={TURNSTILE_SITE_KEY}
+              onVerify={onTurnstileVerify}
+            />
+          ) : null}
+          <SubmitButton disabled={!canSubmit} />
         </form>
       </Form>
     );
